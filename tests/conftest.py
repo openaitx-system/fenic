@@ -8,7 +8,6 @@ import pytest
 import requests
 
 from fenic import (
-    GoogleVertexModelConfig,
     SemanticConfig,
     Session,
     SessionConfig,
