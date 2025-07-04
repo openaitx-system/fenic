@@ -8,7 +8,7 @@ from fenic.core._logical_plan.signatures.signature import (
     FunctionSignature,
     ReturnTypeStrategy,
 )
-from fenic.core._logical_plan.signatures.types import Exact, OneOf, VariadicAny
+from fenic.core._logical_plan.signatures.types import Exact, OneOf, VariadicUniform
 from fenic.core.types.datatypes import (
     ArrayType,
     BooleanType,
@@ -61,13 +61,14 @@ def register_text_signatures():
     FunctionRegistry.register("text.count_tokens", FunctionSignature(
         function_name="text.count_tokens",
         type_signature=Exact([StringType]),  # Takes string input
-        return_type=IntegerType
+        return_type=IntegerType,
+        allow_implicit_casting=False  # Strict validation - no integer-to-string casting
     ))
     
     # Concat - variable number of arguments, all must be castable to string
     FunctionRegistry.register("text.concat", FunctionSignature(
         function_name="text.concat",
-        type_signature=VariadicAny(expected_min_args=1),  # Any types castable to string
+        type_signature=VariadicUniform(expected_min_args=1, required_type=StringType),  # All arguments cast to string
         return_type=StringType
     ))
     

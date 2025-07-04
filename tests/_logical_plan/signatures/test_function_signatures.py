@@ -106,7 +106,8 @@ class TestFunctionSignature:
         sig = FunctionSignature(
             function_name="upper",
             type_signature=Exact([StringType]),
-            return_type=ReturnTypeStrategy.SAME_AS_INPUT
+            return_type=ReturnTypeStrategy.SAME_AS_INPUT,
+            allow_implicit_casting=False  # Disable casting for this test
         )
 
         # Create mock arguments
@@ -114,8 +115,9 @@ class TestFunctionSignature:
         plan = MockPlan()
 
         # Should validate and return correct type
-        return_type = sig.validate_and_infer_type([string_col], plan)
+        return_type, final_args = sig.validate_and_infer_type([string_col], plan)
         assert return_type == StringType
+        assert final_args == [string_col]
 
         # Should fail validation with wrong type
         int_col = MockColumn("int_col", IntegerType)
@@ -137,8 +139,9 @@ class TestFunctionSignature:
         plan = MockPlan()
 
         # Should use dynamic function for return type
-        return_type = sig.validate_and_infer_type([string_col], plan, dynamic_return_func)
+        return_type, final_args = sig.validate_and_infer_type([string_col], plan, dynamic_return_func)
         assert return_type == ArrayType(StringType)
+        assert final_args == [string_col]
 
 
 class TestReturnTypeCompatibility:
@@ -193,7 +196,8 @@ class TestScalarFunctionIntegration:
         col_expr_wrong = ColumnExpr("int_col")
         array_length_expr_wrong = ArrayLengthExpr(col_expr_wrong)
 
-        with pytest.raises(TypeMismatchError, match="array_size expects argument 0 to be an array type, got IntegerType"):
+        with pytest.raises(TypeMismatchError,
+                           match="array_size expects argument 0 to be an array type, got IntegerType"):
             array_length_expr_wrong.to_column_field(plan_wrong_type)
 
 

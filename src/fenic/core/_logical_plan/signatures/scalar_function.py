@@ -29,9 +29,11 @@ class ScalarFunction(LogicalExpr):
     def to_column_field(self, plan: LogicalPlan) -> ColumnField:
         """Use signature to validate and get return type."""
         signature = FunctionRegistry.get_signature(self.function_name)
-        return_type = signature.validate_and_infer_type(
+        return_type, final_args = signature.validate_and_infer_type(
             self.args, plan, self._infer_dynamic_return_type
         )
+        # Update args to use transformed arguments (with any implicit casts)
+        self.args = final_args
         return ColumnField(name=str(self), data_type=return_type)
 
     def _infer_dynamic_return_type(self, arg_types: List[DataType], plan: LogicalPlan) -> DataType:
