@@ -12,7 +12,7 @@ from pydantic.dataclasses import ConfigDict, dataclass
 from fenic.core.types import DataType
 
 
-@dataclass(frozen=True, config=ConfigDict(arbitrary_types_allowed=True))
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class ColumnField:
     """Represents a typed column in a DataFrame schema.
 
@@ -36,7 +36,7 @@ class ColumnField:
         return f"ColumnField(name='{self.name}', data_type={self.data_type})"
 
 
-@dataclass(frozen=True, config=ConfigDict(arbitrary_types_allowed=True))
+@dataclass(config=ConfigDict(arbitrary_types_allowed=True))
 class Schema:
     """Represents the schema of a DataFrame.
 
