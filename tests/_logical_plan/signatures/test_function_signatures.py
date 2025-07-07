@@ -130,7 +130,7 @@ class TestFunctionSignature:
             return_type=ReturnTypeStrategy.DYNAMIC
         )
 
-        def dynamic_return_func(arg_types):
+        def dynamic_return_func(arg_types, logical_plan):
             return ArrayType(arg_types[0])
 
         string_col = MockColumn("text_col", StringType)
