@@ -52,10 +52,10 @@ class SemanticFunction(ScalarFunction):
     
     def to_column_field(self, plan: LogicalPlan) -> ColumnField:
         """Handle signature validation and completion parameter validation."""
+        # Common validation for all semantic functions
+        self._validate_completion_parameters(plan)
         # Call parent to handle signature validation
         result = super().to_column_field(plan)
-        # Then validate completion parameters
-        self._validate_completion_parameters(plan)
         return result
 
 
@@ -294,10 +294,9 @@ class SemanticClassifyExpr(SemanticFunction):
             )
 
     def to_column_field(self, plan: LogicalPlan) -> ColumnField:
+        self._validate_labels(plan)
         # Call parent to handle signature validation
         result = super().to_column_field(plan)
-        # Then validate labels
-        self._validate_labels(plan)
         return result
 
     def children(self) -> List[LogicalExpr]:
