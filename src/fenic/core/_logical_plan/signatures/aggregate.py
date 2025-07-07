@@ -8,14 +8,19 @@ from fenic.core._logical_plan.signatures.signature import (
     FunctionSignature,
     ReturnTypeStrategy,
 )
-from fenic.core._logical_plan.signatures.types import Exact, InstanceOf, OneOf
+from fenic.core._logical_plan.signatures.types import (
+    Any,
+    Exact,
+    InstanceOf,
+    Numeric,
+    OneOf,
+)
 from fenic.core.types.datatypes import (
     BooleanType,
     DoubleType,
     EmbeddingType,
     FloatType,
     IntegerType,
-    StringType,
 )
 
 # Constants for type validation
@@ -28,9 +33,7 @@ def register_aggregate_signatures():
     FunctionRegistry.register("sum", FunctionSignature(
         function_name="sum",
         type_signature=OneOf([
-            Exact([IntegerType]),
-            Exact([FloatType]),
-            Exact([DoubleType]),
+            Numeric(1),
             Exact([BooleanType])
         ]),
         return_type=ReturnTypeStrategy.SAME_AS_INPUT
@@ -40,9 +43,7 @@ def register_aggregate_signatures():
     FunctionRegistry.register("avg", FunctionSignature(
         function_name="avg",
         type_signature=OneOf([
-            Exact([IntegerType]),
-            Exact([FloatType]),
-            Exact([DoubleType]),
+            Numeric(1),
             Exact([BooleanType]),
             InstanceOf([EmbeddingType])
         ]),
@@ -53,9 +54,7 @@ def register_aggregate_signatures():
     FunctionRegistry.register("min", FunctionSignature(
         function_name="min",
         type_signature=OneOf([
-            Exact([IntegerType]),
-            Exact([FloatType]),
-            Exact([DoubleType]),
+            Numeric(1),
             Exact([BooleanType])
         ]),
         return_type=ReturnTypeStrategy.SAME_AS_INPUT
@@ -64,9 +63,7 @@ def register_aggregate_signatures():
     FunctionRegistry.register("max", FunctionSignature(
         function_name="max",
         type_signature=OneOf([
-            Exact([IntegerType]),
-            Exact([FloatType]),
-            Exact([DoubleType]),
+            Numeric(1),
             Exact([BooleanType])
         ]),
         return_type=ReturnTypeStrategy.SAME_AS_INPUT
@@ -75,21 +72,21 @@ def register_aggregate_signatures():
     # Count - accepts any type, always returns IntegerType
     FunctionRegistry.register("count", FunctionSignature(
         function_name="count",
-        type_signature=Exact([object]),  # Accepts any DataType
+        type_signature=Any(1),  # Accepts one argument of any DataType
         return_type=IntegerType
     ))
     
     # List aggregation - accepts any type except literals, returns ArrayType of input element type
     FunctionRegistry.register("list", FunctionSignature(
         function_name="list",
-        type_signature=Exact([object]),  # Accepts any DataType (literal check done separately)
+        type_signature=Any(1),  # Accepts any DataType (literal check done separately)
         return_type=ReturnTypeStrategy.DYNAMIC  # Returns ArrayType(input_type)
     ))
     
     # First - accepts any type, returns same type as input
     FunctionRegistry.register("first", FunctionSignature(
         function_name="first",
-        type_signature=Exact([object]),  # Accepts any DataType
+        type_signature=Any(1),  # Accepts one argument of any DataType
         return_type=ReturnTypeStrategy.SAME_AS_INPUT
     ))
     
@@ -97,20 +94,12 @@ def register_aggregate_signatures():
     FunctionRegistry.register("stddev", FunctionSignature(
         function_name="stddev",
         type_signature=OneOf([
-            Exact([IntegerType]),
-            Exact([FloatType]),
-            Exact([DoubleType]),
+            Numeric(1),
             Exact([BooleanType])
         ]),
         return_type=DoubleType
     ))
-    
-    # Markdown group schema - string input only, returns StringType
-    FunctionRegistry.register("md_group_schema", FunctionSignature(
-        function_name="md_group_schema",
-        type_signature=Exact([StringType]),
-        return_type=StringType
-    ))
+
 
 
 # Register all signatures when module is imported

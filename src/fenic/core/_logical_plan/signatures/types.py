@@ -149,6 +149,19 @@ class PositionalSignature(TypeSignature):
         return expected_types
 
 
+class Any(TypeSignature):
+    """All arguments can be of any type, but an exact number of arguments is required."""
+
+    def __init__(self, expected_num_args: int):
+        self.expected_num_args = expected_num_args
+
+    def validate(self, arg_types: List[DataType], func_name: str) -> None:
+        if len(arg_types) != self.expected_num_args:
+            raise ValidationError(
+                f"{func_name} expects {self.expected_num_args} arguments, "
+                f"got {len(arg_types)}"
+            )
+
 class Exact(PositionalSignature):
     """Exact argument types for functions (e.g., length(str) -> int).
 
