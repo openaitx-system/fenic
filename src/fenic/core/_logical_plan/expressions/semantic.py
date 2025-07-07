@@ -20,10 +20,10 @@ from fenic._inference.model_catalog import (
     ModelProvider,
     model_catalog,
 )
-from fenic.core._logical_plan.expressions.aggregate import AggregateExpr
 from fenic.core._logical_plan.expressions.base import LogicalExpr
 from fenic.core._logical_plan.expressions.basic import ColumnExpr
-from fenic.core._logical_plan.signatures.scalar_function import ScalarFunction
+from fenic.core._logical_plan.signatures import AggregateFunction
+from fenic.core._logical_plan.signatures.function_base import ScalarFunction
 from fenic.core._utils.extract import convert_extract_schema_to_pydantic_type
 from fenic.core._utils.schema import convert_pydantic_type_to_custom_struct_type
 from fenic.core.error import ValidationError
@@ -35,7 +35,14 @@ from fenic.core.types.extract_schema import ExtractSchema
 from fenic.core.types.schema import ColumnField
 
 
-class SemanticFunction(ScalarFunction):
+class SemanticFunction:
+    """Marker class for semantic functions that use LLM models.
+
+    Provides common functionality for completion parameter validation
+    and model configuration handling.
+    """
+
+class SemanticScalarFunction(SemanticFunction, ScalarFunction):
     """Base class for semantic functions that use LLM models.
     
     Provides common functionality for completion parameter validation
@@ -58,8 +65,24 @@ class SemanticFunction(ScalarFunction):
         result = super().to_column_field(plan)
         return result
 
+class SemanticAggregateFunction(SemanticFunction, AggregateFunction):
+    def __init__(self, *args: LogicalExpr):
+        """Initialize semantic function."""
+        super().__init__(*args)
 
-class SemanticMapExpr(SemanticFunction):
+    @abstractmethod
+    def _validate_completion_parameters(self, plan: LogicalPlan):
+        pass
+
+    def to_column_field(self, plan: LogicalPlan) -> ColumnField:
+        """Handle signature validation and completion parameter validation."""
+        # Common validation for all semantic functions
+        self._validate_completion_parameters(plan)
+        # Call parent to handle signature validation
+        result = super().to_column_field(plan)
+        return result
+
+class SemanticMapExpr(SemanticScalarFunction):
     function_name = "semantic.map"
     
     def __init__(
@@ -111,7 +134,7 @@ class SemanticMapExpr(SemanticFunction):
         return self.exprs
 
 
-class SemanticExtractExpr(SemanticFunction):
+class SemanticExtractExpr(SemanticScalarFunction):
     function_name = "semantic.extract"
     
     def __init__(
@@ -159,7 +182,7 @@ class SemanticExtractExpr(SemanticFunction):
         return [self.expr]
 
 
-class SemanticPredExpr(SemanticFunction):
+class SemanticPredExpr(SemanticScalarFunction):
     function_name = "semantic.predicate"
     
     def __init__(
@@ -201,7 +224,7 @@ class SemanticPredExpr(SemanticFunction):
         return self.exprs
 
 
-class SemanticReduceExpr(SemanticFunction, AggregateExpr):
+class SemanticReduceExpr(SemanticAggregateFunction):
     function_name = "semantic.reduce"
     
     def __init__(self,
@@ -246,7 +269,7 @@ class SemanticReduceExpr(SemanticFunction, AggregateExpr):
         return self.exprs
 
 
-class SemanticClassifyExpr(SemanticFunction):
+class SemanticClassifyExpr(SemanticScalarFunction):
     function_name = "semantic.classify"
     
     def __init__(
@@ -327,7 +350,7 @@ class SemanticClassifyExpr(SemanticFunction):
         return label_value.upper().replace(" ", "_")
 
 
-class AnalyzeSentimentExpr(SemanticFunction):
+class AnalyzeSentimentExpr(SemanticScalarFunction):
     function_name = "semantic.analyze_sentiment"
     
     def __init__(
@@ -354,7 +377,7 @@ class AnalyzeSentimentExpr(SemanticFunction):
         return [self.expr]
 
 
-class EmbeddingsExpr(SemanticFunction):
+class EmbeddingsExpr(SemanticScalarFunction):
     """Expression for generating embeddings for a string column.
 
     This expression creates a new column of embeddings for each value in the input string column.

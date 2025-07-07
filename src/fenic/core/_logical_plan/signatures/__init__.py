@@ -7,6 +7,7 @@ and inferring return types.
 # Import signature modules to register them
 
 from fenic.core._logical_plan.signatures import (
+    aggregate,  # noqa: F401
     builtin,  # noqa: F401
     embedding,  # noqa: F401
     json,  # noqa: F401
@@ -14,8 +15,11 @@ from fenic.core._logical_plan.signatures import (
     semantic,  # noqa: F401
     text,  # noqa: F401
 )
+from fenic.core._logical_plan.signatures.function_base import (
+    AggregateFunction,
+    ScalarFunction,
+)
 from fenic.core._logical_plan.signatures.registry import FunctionRegistry
-from fenic.core._logical_plan.signatures.scalar_function import ScalarFunction
 from fenic.core._logical_plan.signatures.signature import (
     FunctionSignature,
     ReturnTypeStrategy,
@@ -61,4 +65,5 @@ __all__ = [
     "ReturnTypeStrategy",
     "FunctionRegistry",
     "ScalarFunction",
+    "AggregateFunction",
 ]
