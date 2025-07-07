@@ -13,10 +13,7 @@ from pydantic import BaseModel, Field
 from fenic.core._logical_plan.expressions.base import LogicalExpr
 from fenic.core._logical_plan.signatures.scalar_function import ScalarFunction
 from fenic.core.types import (
-    ArrayType,
     DataType,
-    DoubleType,
-    IntegerType,
     StringType,
     StructField,
     StructType,
@@ -463,21 +460,6 @@ class ILikeExpr(ScalarFunction):
 class TsParseExpr(ScalarFunction):
     function_name = "text.parse_transcript"
 
-    # Unified schema for all transcript formats
-    OUTPUT_TYPE = ArrayType(
-        element_type=StructType(
-            [
-                StructField("index", IntegerType),        # Optional[int] - Entry index (1-based)
-                StructField("speaker", StringType),       # Optional[str] - Speaker name
-                StructField("start_time", DoubleType),    # float - Start time in seconds
-                StructField("end_time", DoubleType),      # Optional[float] - End time in seconds
-                StructField("duration", DoubleType),      # Optional[float] - Duration in seconds
-                StructField("content", StringType),       # str - Transcript content/text
-                StructField("format", StringType),        # str - Original format ("srt" or "generic")
-            ]
-        )
-    )
-
     def __init__(self, expr: LogicalExpr, format: str):
         self.expr = expr
         self.format = format
@@ -487,10 +469,6 @@ class TsParseExpr(ScalarFunction):
 
     def __str__(self) -> str:
         return f"parse_transcript({self.expr}, {self.format})"
-
-    def _infer_dynamic_return_type(self, arg_types: List[DataType]) -> DataType:
-        """Return the predefined transcript output schema."""
-        return self.OUTPUT_TYPE
 
     def children(self) -> List[LogicalExpr]:
         return [self.expr]
