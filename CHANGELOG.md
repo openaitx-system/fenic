@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/typedef-ai/fenic/compare/v0.2.1...v0.3.0) (2025-07-08)
+
+
+### Features
+
+* summarization function ([#37](https://github.com/typedef-ai/fenic/issues/37)) ([2e83645](https://github.com/typedef-ai/fenic/commit/2e8364547910439544c7f37b16f70fc0311d0e57))
+
+
+### Bug Fixes
+
+* ensure total_output_tokens is populated even if the api response does not include it ([#62](https://github.com/typedef-ai/fenic/issues/62)) ([496c5fd](https://github.com/typedef-ai/fenic/commit/496c5fd1d17f9fd84ceb74bd863ac61d095b9eea))
+
+
+### Documentation
+
+* notebook version of the example ([#60](https://github.com/typedef-ai/fenic/issues/60)) ([6f2ad91](https://github.com/typedef-ai/fenic/commit/6f2ad91af9c82aa3085c901cc064b657ceb42cd7))
+
 ## [0.2.1](https://github.com/typedef-ai/fenic/compare/v0.2.0...v0.2.1) (2025-07-04)
 
 
